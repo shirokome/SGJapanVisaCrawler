@@ -1,18 +1,26 @@
-How it works:
-  1. The program fetch the status of the reservation system every 50-70 seconds.
-  2. Every time a match is detected between your desired date and an available slot, an email will be sent to notify you.
+This tool helps you more easily secure your desired Japan visa appointment slot.
+## How It Works
 
-Customize the file to make it work:
-  1. Add your Gmail account and password, to enable email notification. (Other emails are possible to use if you change more.)
-  2. Edit the date to be your desired date(and corresponding month). You can choose multiple dates.
+1. The script checks the reservation system status every 50–70 seconds.
+2. If any of your specified dates match available slots, an email notification is sent.
 
-How to run:  <br />
-```
+## Setup Instructions
+
+1. Enter your Gmail account and app password to enable email notifications. (You may use other email providers with additional configuration.)
+2. Modify the target date(s) and month in the script. You can specify multiple dates.
+
+## Running the Script
+
+```bash
 pip install selenium
 ```
-```
+
+```bash
 python visa.py
 ```
-Notes:
-  1. To keep it running, avoid shutting down your computer, or you can use a server instead.
-  2. While the fetching frequency can be changed, avoid too high frequency, or your IP might be banned by the website.
+
+## Notes
+
+- To keep the script running continuously, do not shut down your computer. Consider using a server or cloud host for reliability.
+- You may adjust the frequency of checks, but excessive requests could result in your IP being blocked by the website.
+- Star the repo if it helps, thank you.
