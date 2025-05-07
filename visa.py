@@ -1,10 +1,11 @@
+import datetime
 import random
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 import smtplib
 from email.mime.text import MIMEText
-
+from selenium.webdriver.chrome.options import Options
 # —— 配置区 —— #
 URL = "https://coubic.com/Embassy-of-Japan/914977/book/event_type"                  # 目标页面 URL
 TARGET_DATE = "2025年6月5日"                # 要检查的具体日期（要跟 aria-label 一致）
@@ -16,8 +17,8 @@ SMTP_PORT      = 587
 SENDER_EMAIL   = ""
 # 注意：如果你开启了 Gmail 的两步验证，下面填的是【应用专用密码】，而非你的登录密码。
 SENDER_PASSWD  = ""
-RECEIVER_EMAIL = ""
-
+RECEIVER_EMAIL = SENDER_EMAIL
+import sys
 def make_headless_driver():
     chrome_opts = Options()
     chrome_opts.add_argument("--headless")            # 无头模式
@@ -81,7 +82,8 @@ def navigate_to_target_month(driver, target_month: str):
     return False
 
 def check_and_notify():
-    driver = webdriver.Chrome()  # 或 webdriver.Firefox()
+    # driver = webdriver.Chrome()  # 或 webdriver.Firefox()
+    driver = make_headless_driver()
     driver.get(URL)
     time.sleep(5)  # 等待页面、日历初次加载
     
@@ -103,15 +105,17 @@ def check_and_notify():
             continue
 
     driver.quit()
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # 3) 如有可用，则发邮件
     if available:
-        subject = f"预约提醒：{TARGET_DATE} 有可预约名额！"
-        body    = f"检测到 {TARGET_DATE} 可预约，页面地址：{URL}"
-        send_email(subject, body)
+        # 可用时换行打印，或者同样用 \r 覆盖都行
+        print(f"\n{now} ✅ {TARGET_DATE} 可预约！")
+        send_email(f"预约提醒：{TARGET_DATE} 有可预约名额！",
+                   f"检测到 {TARGET_DATE} 可预约，详情见 {URL}")
     else:
-        print(f"❌ {TARGET_DATE} 依然不可预约")
-
+        # 不可用时用 \r 回到行首，end='' + flush=True 实现覆盖
+        sys.stdout.write(f"\r{now} ❌ {TARGET_DATE} 依然不可预约")
+        sys.stdout.flush()
 if __name__ == "__main__":
     # # 单次检测
     # check_and_notify()
