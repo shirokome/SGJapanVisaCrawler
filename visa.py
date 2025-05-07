@@ -8,8 +8,13 @@ from email.mime.text import MIMEText
 from selenium.webdriver.chrome.options import Options
 # —— 配置区 —— #
 URL = "https://coubic.com/Embassy-of-Japan/914977/book/event_type"                  # 目标页面 URL
-TARGET_DATE = "2025年6月5日"                # 要检查的具体日期（要跟 aria-label 一致）
-TARGET_MONTH = "2025年6月"                  # 要跳转到的月份
+TARGET_MONTH = "2025年5月"
+# 要检测的多个日期，格式要与 aria-label 完全一致
+TARGET_DATES = [
+    "2025年5月8日",
+    "2025年5月9日",
+    # "2025年5月20日",
+]
 CHECK_INTERVAL_SEC = 60                     # 检测间隔（秒）
 
 SMTP_SERVER    = "smtp.gmail.com"
@@ -93,30 +98,40 @@ def check_and_notify():
         return
 
     # 2) 查找目标日期按钮并判断是否可用
-    available = False
-    for btn in driver.find_elements(By.CLASS_NAME, "react-calendar__tile"):
-        try:
-            abbr = btn.find_element(By.TAG_NAME, "abbr")
-            if abbr.get_attribute("aria-label") == TARGET_DATE:
-                if btn.get_attribute("disabled") is None:
-                    available = True
-                break
-        except:
+    available = []
+    for date in TARGET_DATES:
+        found = False
+        for btn in driver.find_elements(By.CLASS_NAME, "react-calendar__tile"):
+            try:
+                abbr = btn.find_element(By.TAG_NAME, "abbr")
+                if abbr.get_attribute("aria-label") == date:
+                    found = True
+                    if btn.get_attribute("disabled") is None:
+                        available.append(date)
+                    break
+            except:
+                continue
+        if not found:
+            # 日期按钮没找到也当作“不可预约”
             continue
-
     driver.quit()
+
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    statuses = []
+    for d in TARGET_DATES:
+        mark = "✅" if d in available else "❌"
+        statuses.append(f"{mark} {d}")
+    line = "; ".join(statuses)
+
+    # 覆盖单行输出
+    sys.stdout.write(f"\r{now} {line}")
+    sys.stdout.flush()
 
     if available:
-        # 可用时换行打印，或者同样用 \r 覆盖都行
-        print(f"\n{now} ✅ {TARGET_DATE} 可预约！")
-        send_email(f"预约提醒：{TARGET_DATE} 有可预约名额！",
-                   f"检测到 {TARGET_DATE} 可预约，详情见 {URL}")
-    else:
-        # 不可用时用 \r 回到行首，end='' + flush=True 实现覆盖
-        sys.stdout.write(f"\r{now} ❌ {TARGET_DATE} 依然不可预约")
-        sys.stdout.flush()
-if __name__ == "__main__":
+        subj = f"预约提醒：可预约日期[{', '.join(available)}]"
+        body = f"检测到以下日期可预约：\n" + "\n".join(available) + f"\n\n查看页面：{URL}"
+        send_email(subj, body)
+        print()  # 换行，免得覆盖邮件发送日志
     # # 单次检测
     # check_and_notify()
 
