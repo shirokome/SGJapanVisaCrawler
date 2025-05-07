@@ -19,9 +19,9 @@ CHECK_INTERVAL_SEC = 60                     # 检测间隔（秒）
 
 SMTP_SERVER    = "smtp.gmail.com"
 SMTP_PORT      = 587
-SENDER_EMAIL   = ""
+SENDER_EMAIL   = "xuanran.zhai.ruri@gmail.com"
 # 注意：如果你开启了 Gmail 的两步验证，下面填的是【应用专用密码】，而非你的登录密码。
-SENDER_PASSWD  = ""
+SENDER_PASSWD  = "kjewyvjojgzprwxz"
 RECEIVER_EMAIL = SENDER_EMAIL
 import sys
 def make_headless_driver():
@@ -136,6 +136,7 @@ def check_and_notify():
     # check_and_notify()
 
     # # 如果需要定时每分钟检测，取消下面两行注释即可：
+if __name__ == "__main__":
     while True:
         check_and_notify()
         # 随机在 50–70 秒之间睡眠
