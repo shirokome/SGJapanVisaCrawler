@@ -22,10 +22,8 @@ CHECK_INTERVAL_SEC = 60                     # 检测间隔（秒）
 
 SMTP_SERVER    = "smtp.gmail.com"
 SMTP_PORT      = 587
-# Enter your email and password here
 SENDER_EMAIL   = ""
 # 注意：如果你开启了 Gmail 的两步验证，下面填的是【应用专用密码】，而非你的登录密码。
-# Note: If you have enabled two-step verification for Gmail, use the "App Password" instead of your login password.
 SENDER_PASSWD  = ""
 RECEIVER_EMAIL = SENDER_EMAIL
 import sys
@@ -139,9 +137,10 @@ def check_and_notify():
     
     # 判断页面模式：日历还是列表
     calendar_present = bool(driver.find_elements(By.CLASS_NAME, "react-calendar"))
+    # print(calendar_present, "calendar_present")
     if calendar_present:
         # 日历模式：打开日历，翻页，检测日历格子
-        driver.find_element(By.XPATH, "//input[@placeholder='请选择日期']").click()
+        # driver.find_element(By.XPATH, "//input[@placeholder='请选择日期']").click()
         time.sleep(1)
         if not navigate_to_target_month(driver, TARGET_MONTH):
             driver.quit()
